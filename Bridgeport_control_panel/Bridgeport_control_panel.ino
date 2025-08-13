@@ -7,11 +7,11 @@
 ** the supplied frequency. The maximum operation frequency is 140 Hz (10 V).
 ** That signal is converted to 0-5V by using a voltage divider
 ** and an MCP6002 op-amp. The cutoff frequency of the low-pass filter
-** is 15.9 Hz (a period of 62.8 ms).
+** is 1.59 Hz (a period of 629 ms).
 **
 ** Vin --- 100k ------------------ OPAMP +
 **                |     |                   OPAMP out --- VFD_PIN
-**               100k  0.1uF   --- OPAMP -             |
+**               100k  1uF     --- OPAMP -             |
 **                |     |      |                       |
 **               GND   GND     -------------------------
 **
@@ -46,6 +46,16 @@ const double BACKGEAR_RATIO = 8.3;
 
 // Create display object
 TM1637Display display(CLK, DIO);
+const uint8_t HI_segments[] = {
+    0,
+	0b01110110, // H
+	0b00110000, // I
+    0};
+const uint8_t LO_segments[] = {
+	0,
+	0b00111000, // L
+	0b00111111, // O
+    0};
 
 // Set frequency range
 bool high_range = true;
@@ -83,6 +93,7 @@ void loop() {
     if (range_button == LOW && !last_button_state) {
         high_range = !high_range;
         last_button_state = true;
+        display.setSegments(high_range ? HI_segments : LO_segments);
     } else if (range_button == HIGH) {
         last_button_state = false;
     }
