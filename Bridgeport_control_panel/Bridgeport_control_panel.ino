@@ -5,7 +5,7 @@
 **
 ** The VFD provides a 0-10 V signal that is linearly proportional to
 ** the supplied frequency. The maximum operation frequency is 140 Hz (10 V).
-** That signal is converted to 0-5V by using a voltage divider
+** That signal is converted to 0-5 V by using a voltage divider
 ** and an MCP6002 op-amp. The cutoff frequency of the low-pass filter
 ** is 1.59 Hz (a period of 629 ms).
 **
@@ -33,16 +33,12 @@
 // Constant for the backgear ratio
 const double BACKGEAR_RATIO = 8.3;
 
-// Analogue pin for the VFD speed signal
-#define VFD_PIN A0
-
-// Pin for the low/high speed range button
-#define RANGE_BUTTON_PIN 5
-// Pin 4 wasn't working
-
-// Pins for CLK and DIO
-#define CLK 2
-#define DIO 3
+// Pin definitions
+#define VFD_PIN A0 // Analogue pin for the VFD speed signal
+#define RANGE_BUTTON_PIN 5 // Pin for the low/high speed range button (pin 4
+                           // wasn't working)
+#define CLK 2 // Pin for display clock
+#define DIO 3 // Pin for display data I/O
 
 // Create display object
 TM1637Display display(CLK, DIO);
@@ -61,12 +57,14 @@ const uint8_t LO_segments[] = {
 bool high_range = true;
 bool last_button_state = false;
 
-// Check for button presses every 10 ms but the display only needs to be updated
-// every 1 s. Empirically determined such that
-// num_of_checks * button_check_interval ~= 1 s
-int button_check_interval = 10; // check for button press every 10 ms
-int num_of_checks = 95; // Number of checks before updating display
-int num_of_checks_done = num_of_checks; // Number of checks left
+// Update frequency
+bool change_range_period = true; // True immediately after changing the range
+// int change_range_period_time = 500; // Time in milliseconds the period lasts
+int speed_update_interval = 1000; // Time in milliseconds between updating the display
+int last_update_time;
+
+// Variables to measure the speed
+int num_of_measurements = 0;
 double sum_of_speeds = 0.0; // Sum up num_of_checks speeds to get the average
 
 
@@ -80,22 +78,28 @@ void setup() {
     // Set display brightness (0-7)
     display.setBrightness(5);
 
-    // initialize serial communication at 9600 bits per second:
-    Serial.begin(9600);
+    if (DEBUG) {
+        // initialize serial communication at 9600 bits per second:
+        Serial.begin(9600);
+        delay(1000);
+    }
+
+    // Say HI and wait to update
+    last_update_time = millis();
+    display.setSegments(HI_segments);
 }
 
 
 void loop() {
-    delay(10); // Low pass filter has a cutoff period of 63 ms
-
     // Check the range button and change the range if it is a new press
     int range_button = digitalRead(RANGE_BUTTON_PIN);
-    if (range_button == LOW && !last_button_state) {
+    if (range_button == LOW && !change_range_period) {
         high_range = !high_range;
-        last_button_state = true;
+        change_range_period = true;
+        sum_of_speeds = 0.0;
+        num_of_measurements = 0;
+        last_update_time = millis();
         display.setSegments(high_range ? HI_segments : LO_segments);
-    } else if (range_button == HIGH) {
-        last_button_state = false;
     }
 
     // Read the VFD signal
@@ -104,25 +108,37 @@ void loop() {
     double speed = ((double)vfd_value / 1023.0) * 4025.0;
     speed = high_range ? speed : speed / BACKGEAR_RATIO;
     sum_of_speeds += speed;
+    ++num_of_measurements;
 
-    if (num_of_checks_done-- == 0) {
-        double average_speed = sum_of_speeds / (double)num_of_checks;
-        sum_of_speeds = 0.0;
-        num_of_checks_done = num_of_checks;
+    int time_diff = millis() - last_update_time; // Bug if calculated in if statement
+    if (time_diff >= speed_update_interval) {
+        last_update_time = millis();
+        double average_speed = sum_of_speeds / (double)num_of_measurements;
         int display_speed = (int)average_speed;
         display.showNumberDec(display_speed);
 
+        if (change_range_period) {
+            change_range_period = false;
+        }
+
         // Write to serial for debugging
-        if (DEBUG) {
+        if (DEBUG > 0) {
+            //Serial.print(time_diff);
             Serial.print("Speed: ");
             Serial.print(average_speed);
             Serial.print(" Display Speed: ");
-            Serial.println(display_speed);
+            Serial.print(display_speed);
+            Serial.print(" Denominator: ");
+            Serial.println(num_of_measurements);
         }
+
+        // Reset
+        sum_of_speeds = 0.0;
+        num_of_measurements = 0;
     }
 
     // Write to serial for debugging
-    if (DEBUG) {
+    if (DEBUG > 1) {
         Serial.print("Range: ");
         Serial.print(high_range);
         Serial.print(" RANGE BUTTON: ");
@@ -136,4 +152,6 @@ void loop() {
         Serial.print(" Sum of Speeds: ");
         Serial.println(sum_of_speeds);
     }
+
+    delay(1); // Delay 1 ms before the next measurement
 }
