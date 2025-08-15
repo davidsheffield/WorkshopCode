@@ -59,13 +59,15 @@ bool last_button_state = false;
 
 // Update frequency
 bool change_range_period = true; // True immediately after changing the range
-// int change_range_period_time = 500; // Time in milliseconds the period lasts
 int speed_update_interval = 1000; // Time in milliseconds between updating the display
 int last_update_time;
 
 // Variables to measure the speed
 int num_of_measurements = 0;
 double sum_of_speeds = 0.0; // Sum up num_of_checks speeds to get the average
+
+// Minimum speed to display
+const double min_display_speed = 25.0;
 
 
 void setup() {
@@ -114,7 +116,12 @@ void loop() {
     if (time_diff >= speed_update_interval) {
         last_update_time = millis();
         double average_speed = sum_of_speeds / (double)num_of_measurements;
-        int display_speed = (int)average_speed;
+        int display_speed;
+        if (average_speed > min_display_speed) {
+            display_speed = (int)average_speed;
+        } else {
+            display_speed = 0; // Minimum VFD speed is 13.8% of the maximum
+        }
         display.showNumberDec(display_speed);
 
         if (change_range_period) {
