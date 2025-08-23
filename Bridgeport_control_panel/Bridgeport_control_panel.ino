@@ -4,16 +4,22 @@
 ** the VFD and provides the spindle speed on an LED display.
 **
 ** The VFD provides a 0-10 V signal that is linearly proportional to
-** the supplied frequency. The maximum operation frequency is 140 Hz (10 V).
-** That signal is converted to 0-5 V by using a voltage divider
-** and an MCP6002 op-amp. The cutoff frequency of the low-pass filter
-** is 1.59 Hz (a period of 629 ms).
+** the supplied frequency with a -5% bias. The maximum operation frequency is
+** 140 Hz (9.5 V). The minimum operation frequency is 13.8% of the maximum
+** (19.32 Hz or 0.88 V). That signal is converted to 0-5 V by using a voltage
+** divider and an MCP6002 op-amp. The cutoff frequency of the low-pass filter
+** is 1.59 Hz (a period of 629 ms). The V+ from the VFD is at the same potential
+** as the digital ground, hence the need for the differential amplifier.
 **
-** Vin --- 100k ------------------ OPAMP +
-**                |     |                   OPAMP out --- VFD_PIN
-**               100k  1uF     --- OPAMP -             |
-**                |     |      |                       |
-**               GND   GND     -------------------------
+**                    ------- 100k ---------------
+**                    |                          |
+** V- ---- 200k ------------ OPAMP -             |
+**                                    OPAMP out --- VFD_PIN
+** V+ ---- 200k ------------ OPAMP +
+**                |      |
+**               100k   1uF
+**                |      |
+**               GND    GND
 **
 ** The Bridgeport has a high speed range and a low speed range, which goes
 ** throught a backgear with approximation a 8.3:1 reduction in speed. A button
@@ -66,6 +72,16 @@ int last_update_time;
 int num_of_measurements = 0;
 double sum_of_speeds = 0.0; // Sum up num_of_checks speeds to get the average
 
+// Factor to convert raw VFD_PIN reading to frequency (Hz)
+// 4025 RPM is the maximum frequency
+// 1023 is the maximum reading from VFD_PIN
+const double calibration = 4025.0 / 1023.0;
+// Correct for the -5% bias in the VFD signal
+const double bias = 195.0;
+// To calibrate, set the factor to 1 and bias to 0
+// const double calibration = 1.0;
+// const double bias = 0.0;
+
 // Minimum speed to display
 const double min_display_speed = 25.0;
 
@@ -107,7 +123,7 @@ void loop() {
     // Read the VFD signal
     int vfd_value = analogRead(VFD_PIN);
     // Convert to speed [RPM]
-    double speed = ((double)vfd_value / 1023.0) * 4025.0;
+    double speed = (double)vfd_value * calibration + bias;
     speed = high_range ? speed : speed / BACKGEAR_RATIO;
     sum_of_speeds += speed;
     ++num_of_measurements;
