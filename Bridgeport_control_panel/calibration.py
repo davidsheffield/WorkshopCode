@@ -69,7 +69,9 @@ def plot(calibration, bias, backgear_ratio):
                 label='Low speed')
     ax1.set_xlabel('Potentiometer mark')
     ax1.set_ylabel('ADC reading')
-    ax1.legend()
+    ax1.set_xlim(0, 10)
+    ax1.set_ylim(0, 1200)
+    ax1.legend(loc='upper left')
     ax1.tick_params(direction='in', top=True, right=True)
 
     # Figure 2: Speed [RPM] vs Potentiometer mark
@@ -82,6 +84,8 @@ def plot(calibration, bias, backgear_ratio):
                 label='Low speed')
     ax2.set_xlabel('Potentiometer mark')
     ax2.set_ylabel('Speed [RPM]')
+    ax2.set_xlim(0, 10)
+    ax2.set_ylim(0, 4500)
     ax2.legend()
     ax2.tick_params(direction='in', top=True, right=True)
 
@@ -94,6 +98,8 @@ def plot(calibration, bias, backgear_ratio):
     ax3.plot(x_fit, (calibration / backgear_ratio) * x_fit + (bias / backgear_ratio), label='Low speed fit')
     ax3.set_xlabel('ADC reading')
     ax3.set_ylabel('Speed [RPM]')
+    ax3.set_xlim(0, 1023)
+    ax3.set_ylim(0, 4500)
     ax3.legend()
     ax3.tick_params(direction='in', top=True, right=True)
 
