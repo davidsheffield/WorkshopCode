@@ -27,8 +27,10 @@ def calibrate():
     print(f'bias          = {bias:.6f}')
     print(f'backgear_ratio = {backgear_ratio:.6f}')
 
+    return calibration, bias, backgear_ratio
 
-def plot():
+
+def plot(calibration, bias, backgear_ratio):
     """
     Plot the calibration data
     """
@@ -68,6 +70,9 @@ def plot():
     fig3, ax3 = plt.subplots()
     ax3.scatter(high['ADC reading'], high['Speed [RPM]'], label='High speed')
     ax3.scatter(low['ADC reading'], low['Speed [RPM]'], label='Low speed')
+    x_fit = np.array([data['ADC reading'].min(), data['ADC reading'].max()])
+    ax3.plot(x_fit, calibration * x_fit + bias, label='High speed fit')
+    ax3.plot(x_fit, (calibration / backgear_ratio) * x_fit + bias, label='Low speed fit')
     ax3.set_xlabel('ADC reading')
     ax3.set_ylabel('Speed [RPM]')
     ax3.legend()
@@ -76,5 +81,5 @@ def plot():
     plt.show()
 
 if __name__ == '__main__':
-    calibrate()
-    # plot()
+    calibration, bias, backgear_ratio = calibrate()
+    plot(calibration, bias, backgear_ratio)
