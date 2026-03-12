@@ -1,5 +1,31 @@
 import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
+from sklearn.linear_model import LinearRegression
+
+
+def calibrate():
+    """
+    Calculate the control panel's calibration, bias, and BACKGEAR_RATIO.
+    """
+    data = pd.read_csv('calibration_measurements.csv')
+
+    # Build feature matrix: high speed rows use [ADC, 0], low speed rows use [0, ADC]
+    adc = data['ADC reading'].values
+    is_high = data['High speed'].values
+    X = np.column_stack([adc * is_high, adc * (1 - is_high)])
+    y = data['Speed [RPM]'].values
+
+    model = LinearRegression(fit_intercept=True)
+    model.fit(X, y)
+
+    calibration = model.coef_[0]
+    bias = model.intercept_
+    backgear_ratio = model.coef_[0] / model.coef_[1]
+
+    print(f'calibration   = {calibration:.6f}')
+    print(f'bias          = {bias:.6f}')
+    print(f'backgear_ratio = {backgear_ratio:.6f}')
 
 
 def plot():
@@ -49,6 +75,6 @@ def plot():
 
     plt.show()
 
-
 if __name__ == '__main__':
-    plot()
+    calibrate()
+    # plot()
