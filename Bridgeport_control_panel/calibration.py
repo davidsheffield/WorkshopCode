@@ -32,9 +32,14 @@ def calibrate():
         _model, (adc, is_high), y, p0=[3.7, 392.0, 8.8]
     )
 
+    y_pred = _model((adc, is_high), calibration, bias, backgear_ratio)
+    chi2 = np.sum((y - y_pred)**2 / y_pred)
+    dof = len(y) - 3  # 3 fitted parameters
+
     print(f'calibration    = {calibration:.6f}')
     print(f'bias           = {bias:.6f}')
     print(f'backgear_ratio = {backgear_ratio:.6f}')
+    print(f'chi2 / dof     = {chi2/dof:.4f}')
 
     return calibration, bias, backgear_ratio
 
