@@ -89,19 +89,42 @@ def plot(calibration, bias, backgear_ratio):
     ax2.legend()
     ax2.tick_params(direction='in', top=True, right=True)
 
-    # Figure 3: Speed [RPM] vs ADC reading
-    fig3, ax3 = plt.subplots()
+    # Figure 3: Speed [RPM] vs ADC reading, with residuals panel
+    fig3, (ax3, ax3r) = plt.subplots(
+        2, 1, sharex=True,
+        gridspec_kw={'height_ratios': [3, 1]},
+        figsize=(6.4, 5.5),
+    )
+    fig3.subplots_adjust(hspace=0.05)
     ax3.scatter(high['ADC reading'], high['Speed [RPM]'], label='High speed')
     ax3.scatter(low['ADC reading'], low['Speed [RPM]'], label='Low speed')
     x_fit = np.array([data['ADC reading'].min(), data['ADC reading'].max()])
     ax3.plot(x_fit, calibration * x_fit + bias, label='High speed fit')
     ax3.plot(x_fit, (calibration / backgear_ratio) * x_fit + (bias / backgear_ratio), label='Low speed fit')
-    ax3.set_xlabel('ADC reading')
     ax3.set_ylabel('Speed [RPM]')
     ax3.set_xlim(0, 1023)
     ax3.set_ylim(0, 4500)
     ax3.legend()
     ax3.tick_params(direction='in', top=True, right=True)
+
+    high_pred = _model(
+        (high['ADC reading'].values, np.ones(len(high))),
+        calibration, bias, backgear_ratio,
+    )
+    low_pred = _model(
+        (low['ADC reading'].values, np.zeros(len(low))),
+        calibration, bias, backgear_ratio,
+    )
+    high_resid = (high['Speed [RPM]'].values - high_pred) / high_pred
+    low_resid = (low['Speed [RPM]'].values - low_pred) / low_pred
+    ax3r.axhline(0, color='k', linewidth=0.8, linestyle='--')
+    ax3r.scatter(high['ADC reading'], high_resid)
+    ax3r.scatter(low['ADC reading'], low_resid)
+    ax3r.set_xlabel('ADC reading')
+    ax3r.set_ylabel('Residual / expected')
+    ax3r.set_xlim(0, 1023)
+    ax3r.set_ylim(-0.06, 0.06)
+    ax3r.tick_params(direction='in', top=True, right=True)
 
     plt.show()
 
