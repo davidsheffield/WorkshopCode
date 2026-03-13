@@ -48,9 +48,8 @@
 
 // 1 to enable debug output to serial
 #define DEBUG 0
-
-// Constant for the backgear ratio
-const double BACKGEAR_RATIO = 8.858924;
+// 1 to disable calibration (raw ADC values passed through display)
+#define CALIBRATION 0
 
 // Pin definitions
 #define VFD_PIN A0 // Analogue pin for the VFD speed signal
@@ -85,15 +84,17 @@ int last_update_time;
 int num_of_measurements = 0;
 double sum_of_speeds = 0.0; // Sum up num_of_checks speeds to get the average
 
-// Factor to convert raw VFD_PIN reading to frequency (Hz)
-// 4025 RPM is the maximum frequency
-// 1023 is the maximum reading from VFD_PIN
+// Factor to convert raw VFD_PIN reading to RPM, and bias correction
+#if CALIBRATION
+const double calibration = 1.0;
+const double bias = 0.0;
+#else
 const double calibration = 3.700423;
-// Correct for the -5% bias in the VFD signal
 const double bias = 391.732124;
-// To calibrate, set the factor to 1 and bias to 0
-// const double calibration = 1.0;
-// const double bias = 0.0;
+#endif
+
+// Constant for the backgear ratio
+const double BACKGEAR_RATIO = 8.858924;
 
 // Minimum speed to display
 const double min_display_speed = 25.0;
