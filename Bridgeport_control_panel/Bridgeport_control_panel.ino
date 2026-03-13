@@ -22,7 +22,7 @@
 **               GND    GND
 **
 ** The Bridgeport has a high speed range and a low speed range, which goes
-** throught a backgear with approximation a 8.3:1 reduction in speed. A button
+** throught a backgear with a measured 8.858924:1 reduction in speed. A button
 ** on the control panel allows the user to select the high or low speed range.
 ** By default, the panel displays the high speed range.
 **
@@ -37,7 +37,7 @@
 #define DEBUG 0
 
 // Constant for the backgear ratio
-const double BACKGEAR_RATIO = 8.3;
+const double BACKGEAR_RATIO = 8.858924;
 
 // Pin definitions
 #define VFD_PIN A0 // Analogue pin for the VFD speed signal
@@ -75,9 +75,9 @@ double sum_of_speeds = 0.0; // Sum up num_of_checks speeds to get the average
 // Factor to convert raw VFD_PIN reading to frequency (Hz)
 // 4025 RPM is the maximum frequency
 // 1023 is the maximum reading from VFD_PIN
-const double calibration = 4025.0 / 1023.0;
+const double calibration = 3.700423;
 // Correct for the -5% bias in the VFD signal
-const double bias = 195.0;
+const double bias = 391.732124;
 // To calibrate, set the factor to 1 and bias to 0
 // const double calibration = 1.0;
 // const double bias = 0.0;
