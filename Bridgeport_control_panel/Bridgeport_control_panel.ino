@@ -4,9 +4,9 @@
 ** the VFD and provides the spindle speed on an LED display.
 **
 ** The VFD provides a 0-10 V signal that is linearly proportional to
-** the supplied frequency with a -5% bias. The maximum operation frequency is
-** 140 Hz (9.5 V). The minimum operation frequency is 13.8% of the maximum
-** (19.32 Hz or 0.88 V). That signal is converted to 0-5 V by using a voltage
+** the supplied frequency with a 90% gain and -7.5% bias. The maximum operation
+** frequency is 140 Hz. The minimum operation frequency is 12.1% of the maximum
+** frequency (16.98 Hz). That signal is converted to 0-5 V by using a voltage
 ** divider and an MCP6002 op-amp. The cutoff frequency of the low-pass filter
 ** is 1.59 Hz (a period of 629 ms). The V+ from the VFD is at the same potential
 ** as the digital ground, hence the need for the differential amplifier.
@@ -25,6 +25,19 @@
 ** throught a backgear with a measured 8.858924:1 reduction in speed. A button
 ** on the control panel allows the user to select the high or low speed range.
 ** By default, the panel displays the high speed range.
+**
+** Minimum speed
+**    Frequency: 19.32 Hz
+**    Analog output: 0.342 V
+**    ADC count:  33.5
+**    Speed (High): 516 RPM
+**    Speed (Low): 58 RPM
+** Maximum speed
+**    Frequency: 140.00 Hz
+**    Analog output: 8.253 V
+**    ADC count:  1017.5
+**    Speed (High): 4157 RPM
+**    Speed (Low): 469 RPM
 **
 ** The speed is displayed on a 4-digit 7-segment LED display. The display has
 ** pins VCC, GND, CLK, and DIO. It uses the protocol defined by the TM1637 chip.
