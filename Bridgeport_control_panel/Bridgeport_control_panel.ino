@@ -96,8 +96,9 @@ const double bias = 391.732124;
 // Constant for the backgear ratio
 const double BACKGEAR_RATIO = 8.858924;
 
-// Minimum speed to display
-const double min_display_speed = 25.0;
+// Minimum speed to display (per range)
+const double min_display_speed_high = 440.0;
+const double min_display_speed_low = min_display_speed_high / BACKGEAR_RATIO;
 
 
 void setup() {
@@ -147,7 +148,7 @@ void loop() {
         last_update_time = millis();
         double average_speed = sum_of_speeds / (double)num_of_measurements;
         int display_speed;
-        if (average_speed > min_display_speed) {
+        if (average_speed > (high_range ? min_display_speed_high : min_display_speed_low)) {
             display_speed = (int)average_speed;
         } else {
             display_speed = 0; // Minimum VFD speed is 13.8% of the maximum
