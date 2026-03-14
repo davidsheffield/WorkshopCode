@@ -110,11 +110,11 @@ void setup() {
     // Set display brightness (0-7)
     display.setBrightness(5);
 
-    if (DEBUG) {
-        // initialize serial communication at 9600 bits per second:
-        Serial.begin(9600);
-        delay(1000);
-    }
+#if DEBUG
+    // initialize serial communication at 9600 bits per second:
+    Serial.begin(9600);
+    delay(1000);
+#endif
 
     // Say HI and wait to update
     last_update_time = millis();
@@ -159,15 +159,15 @@ void loop() {
         }
 
         // Write to serial for debugging
-        if (DEBUG > 0) {
-            //Serial.print(time_diff);
-            Serial.print("Speed: ");
-            Serial.print(average_speed);
-            Serial.print(" Display Speed: ");
-            Serial.print(display_speed);
-            Serial.print(" Denominator: ");
-            Serial.println(num_of_measurements);
-        }
+#if DEBUG > 0
+        //Serial.print(time_diff);
+        Serial.print("Speed: ");
+        Serial.print(average_speed);
+        Serial.print(" Display Speed: ");
+        Serial.print(display_speed);
+        Serial.print(" Denominator: ");
+        Serial.println(num_of_measurements);
+#endif
 
         // Reset
         sum_of_speeds = 0.0;
@@ -175,20 +175,20 @@ void loop() {
     }
 
     // Write to serial for debugging
-    if (DEBUG > 1) {
-        Serial.print("Range: ");
-        Serial.print(high_range);
-        Serial.print(" RANGE BUTTON: ");
-        Serial.print(range_button);
-        Serial.print(" last_button_state: ");
-        Serial.print(last_button_state);
-        Serial.print(" VFD: ");
-        Serial.print(vfd_value);
-        Serial.print(" Speed: ");
-        Serial.print(speed);
-        Serial.print(" Sum of Speeds: ");
-        Serial.println(sum_of_speeds);
-    }
+#if DEBUG > 1
+    Serial.print("Range: ");
+    Serial.print(high_range);
+    Serial.print(" RANGE BUTTON: ");
+    Serial.print(range_button);
+    Serial.print(" last_button_state: ");
+    Serial.print(last_button_state);
+    Serial.print(" VFD: ");
+    Serial.print(vfd_value);
+    Serial.print(" Speed: ");
+    Serial.print(speed);
+    Serial.print(" Sum of Speeds: ");
+    Serial.println(sum_of_speeds);
+#endif
 
     delay(1); // Delay 1 ms before the next measurement
 }
