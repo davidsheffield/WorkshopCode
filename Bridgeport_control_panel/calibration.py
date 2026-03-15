@@ -96,7 +96,7 @@ def plot(calibration, bias, backgear_ratio):
         gridspec_kw={'height_ratios': [3, 1]},
         figsize=(6.4, 5.5),
     )
-    fig3.subplots_adjust(hspace=0.05)
+    fig3.subplots_adjust(hspace=0.05, top=0.93, right=0.93)
     ax3.scatter(high['ADC reading'], high['Speed [RPM]'], label='High speed')
     ax3.scatter(low['ADC reading'], low['Speed [RPM]'], label='Low speed')
     x_fit = np.array([data['ADC reading'].min(), data['ADC reading'].max()])
