@@ -28,16 +28,20 @@
 **
 ** Minimum speed
 **    Frequency: 19.32 Hz
-**    Analog output: 0.342 V
+**    Measured anaolog output: 0.2932 V
+**    Theoretical analog output: 0.342 V
 **    ADC count:  33.5
 **    Speed (High): 516 RPM
 **    Speed (Low): 58 RPM
 ** Maximum speed
 **    Frequency: 140.00 Hz
-**    Analog output: 8.253 V
+**    Measured anaolog output: 8.2000 V
+**    Theoretical analog output: 8.253 V
 **    ADC count:  1017.5
 **    Speed (High): 4157 RPM
 **    Speed (Low): 469 RPM
+**
+** VCC is 5.075 V.
 **
 ** The speed is displayed on a 4-digit 7-segment LED display. The display has
 ** pins VCC, GND, CLK, and DIO. It uses the protocol defined by the TM1637 chip.
